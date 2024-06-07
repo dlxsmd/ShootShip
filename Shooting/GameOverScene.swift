@@ -10,20 +10,22 @@ import SpriteKit
 
 class GameOverScene:SKScene{
     
+    let value = ValueManager.shared
+    
     let restartLabel = SKLabelNode(fontNamed: "Helvetica")
     let titleLabel = SKLabelNode(fontNamed: "Helvetica")
     
     override func didMove(to view: SKView) {
         
         let BestscoreLabel = SKLabelNode(fontNamed: "Helvetica")
-        BestscoreLabel.text = "BestScore: \(ScoreManager.shared.hero)"
+        BestscoreLabel.text = "BestScore: \(value.hero)"
         BestscoreLabel.fontSize = 25
         BestscoreLabel.position = CGPoint(x: UIScreen.main.bounds.maxX / 2, y: UIScreen.main.bounds.maxY - 100)
         BestscoreLabel.fontColor = .white
         addChild(BestscoreLabel)
         
         let scoreLabel = SKLabelNode(fontNamed: "Helvetica")
-        scoreLabel.text = "YourScore: \(ScoreManager.shared.score)"
+        scoreLabel.text = "YourScore: \(value.score)"
         scoreLabel.fontSize = 25
         scoreLabel.position = CGPoint(x: UIScreen.main.bounds.maxX / 2, y: UIScreen.main.bounds.maxY - 300)
         scoreLabel.fontColor = .white
@@ -50,16 +52,16 @@ class GameOverScene:SKScene{
         let location = touch!.location(in: self)
         
         if restartLabel.contains(location){
-            ScoreManager.shared.score = 0
-            ScoreManager.shared.stage = 1
+            value.score = 0
+            value.stage = 0
             let scene = Shooting.GameScene(size: self.size)
             scene.scaleMode = .fill
             scene.backgroundColor = .white
             self.view?.presentScene(scene)
         }
         if titleLabel.contains(location){
-            ScoreManager.shared.score = 0
-            ScoreManager.shared.stage = 1
+            value.score = 0
+            value.stage = 0
             let scene = Shooting.TitleScene(size: self.size)
             scene.scaleMode = .fill
             scene.backgroundColor = .white

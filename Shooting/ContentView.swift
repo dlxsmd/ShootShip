@@ -22,9 +22,13 @@ struct ContentView: View {
     }
     
     var body: some View {
-        SpriteView(scene:TitleScene)
-            .frame(width: screenwidth, height: screenheight)
-            .edgesIgnoringSafeArea(.all)
+        ZStack{
+            
+            SpriteView(scene:TitleScene)
+                .frame(width: screenwidth, height: screenheight)
+                .edgesIgnoringSafeArea(.all)
+            
+        }
     }
 }
 

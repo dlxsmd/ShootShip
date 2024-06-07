@@ -9,22 +9,23 @@ import Foundation
 import SpriteKit
 
 class TitleScene:SKScene{
+    
+    let value = ValueManager.shared
         
-        let startLabel = SKLabelNode(fontNamed: "Helvetica")
+        let startLabel = SKSpriteNode()
         
         override func didMove(to view: SKView) {
             
             let BestscoreLabel = SKLabelNode(fontNamed: "Helvetica")
-            BestscoreLabel.text = "BestScore: \(ScoreManager.shared.hero)"
+            BestscoreLabel.text = "BestScore: \(value.hero)"
             BestscoreLabel.fontSize = 25
             BestscoreLabel.position = CGPoint(x: UIScreen.main.bounds.maxX / 2, y: UIScreen.main.bounds.maxY - 100)
             BestscoreLabel.fontColor = .red
             addChild(BestscoreLabel)
             
-            startLabel.text = "Start"
-            startLabel.fontSize = 50
+            startLabel.texture = SKTexture(imageNamed: "start")
+            startLabel.size = CGSize(width: 200, height: 100)
             startLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
-            startLabel.fontColor = .blue
             addChild(startLabel)
             
             print("title loading")

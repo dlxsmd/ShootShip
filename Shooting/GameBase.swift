@@ -8,8 +8,8 @@
 import Foundation
 import SpriteKit
 
-class ScoreManager {
-    static let shared = ScoreManager()
+class ValueManager {
+    static let shared = ValueManager()
     
     private init() {}
     
@@ -17,23 +17,30 @@ class ScoreManager {
     
     var hero = 0 //ベストスコア
     
-    var stage = 1 //ステージ数
+    var stage = 9 //ステージ数(初期値は０に)
+    
+    var bossstage = 0 //ボスステージ
     
     var debug = true //モード
     
-    var reverse = false //裏ステージ
+    var boss = false //ボスステージ
     
 }
 
 class GameBase: SKScene, SKPhysicsContactDelegate {
+     
+    let value = ValueManager.shared
+    
     
     struct PhysicsCategory {
         static let Alien: UInt32 = 1
         static let Bullet: UInt32 = 2
         static let Ship: UInt32 = 4
         static let Item: UInt32 = 8
+        static let Boss: UInt32 = 16
     }
     
+    let background = SKSpriteNode(imageNamed: "background")
     let scoreLabel = SKLabelNode(fontNamed: "Helvetica")
     let bestScoreLabel = SKLabelNode(fontNamed: "Helvetica")
     let stageLabel = SKLabelNode(fontNamed: "Helvetica")
@@ -42,29 +49,58 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         super.didMove(to: view)
         
-        scoreLabel.text = "Score: \(ScoreManager.shared.score)"
-        scoreLabel.fontSize = 25
-        scoreLabel.position = CGPoint(x: UIScreen.main.bounds.maxX - 100, y: UIScreen.main.bounds.maxY - 100)
-        scoreLabel.fontColor = .blue
-        addChild(scoreLabel)
-        
-        bestScoreLabel.text = "BestScore: \(ScoreManager.shared.hero)"
-        bestScoreLabel.fontSize = 25
-        bestScoreLabel.position = CGPoint(x: UIScreen.main.bounds.minX + 100, y: UIScreen.main.bounds.maxY - 100)
-        bestScoreLabel.fontColor = .blue
-        addChild(bestScoreLabel)
-        
-        stageLabel.text = "Stage: \(ScoreManager.shared.stage)"
-        stageLabel.fontSize = 25
-        stageLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 70)
-        stageLabel.fontColor = .blue
-        addChild(stageLabel)
-        
         self.physicsWorld.contactDelegate = self
         
-        makeDeadline()
-        generateAliens()
+        value.stage += 1
+        makeBackground()
+        makescoreLabel(pos: CGPoint(x: UIScreen.main.bounds.maxX - 100, y: UIScreen.main.bounds.maxY - 100))
+        makebestscoreLabel(pos: CGPoint(x: UIScreen.main.bounds.minX + 100, y: UIScreen.main.bounds.maxY - 100))
+        makeStageLabel(pos: CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 70))
         createShip()
+        makeDeadline()
+        
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
+                self.generateAliens()
+            }
+    }
+    
+    func nextLabel(){
+        let nextLabel = SKLabelNode(fontNamed: "Helvetica")
+        nextLabel.text = "Next Stage"
+        nextLabel.fontSize = 50
+        nextLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+        nextLabel.fontColor = .white
+        addChild(nextLabel)
+    }
+    
+    func makeBackground(){
+        background.position = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
+        background.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        addChild(background)
+    }
+    
+    func makeStageLabel(pos: CGPoint){
+        stageLabel.text = "Stage: \(value.stage)"
+        stageLabel.fontSize = 25
+        stageLabel.position = pos
+        stageLabel.fontColor = .white
+        addChild(stageLabel)
+    }
+    
+    func makebestscoreLabel(pos: CGPoint){
+        bestScoreLabel.text = "BestScore: \(value.hero)"
+        bestScoreLabel.fontSize = 25
+        bestScoreLabel.position = pos
+        bestScoreLabel.fontColor = .white
+        addChild(bestScoreLabel)
+    }
+    
+    func makescoreLabel(pos: CGPoint){
+        scoreLabel.text = "Score: \(value.score)"
+        scoreLabel.fontSize = 25
+        scoreLabel.position = pos
+        scoreLabel.fontColor = .white
+        addChild(scoreLabel)
     }
     
     func makeDeadline() {
@@ -79,37 +115,30 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     }
 
     func generateAliens() {
-        let startY = Int(UIScreen.main.bounds.maxY - 300)
-        var startX = 50
+        let startY = Int(UIScreen.main.bounds.maxY - 100)
         
-        for row in 0..<ScoreManager.shared.stage {
-            startX = 50
-            if ScoreManager.shared.stage <= 5{
-                for _ in 1...ScoreManager.shared.stage {
-                    createAlien(pos: CGPoint(x: startX, y: startY + row * 30), color: .green)
-                    startX += 35
-                }
-            }else{
-                for _ in 1...5 {
-                    createAlien(pos: CGPoint(x: startX, y: startY + row * 30), color: .green)
-                    startX += 35
-                }
+        for row in 0..<value.stage {
+            
+                    for _ in 0..<2{
+                        createAlien(pos: CGPoint(x: Int.random(in: Int(UIScreen.main.bounds.midX / 2)..<Int(UIScreen.main.bounds.midX * (3/2))), y: startY + row * 25), color: .green)
+                    }
             }
         }
-    }
     
-    func createItem() {
+    func createItem(pos: CGPoint) {
         let item = SKSpriteNode()
-        item.size = CGSize(width: 25, height: 25)
-        item.color = UIColor.yellow
-        item.position = CGPoint(x: CGFloat.random(in: 0...UIScreen.main.bounds.width), y: UIScreen.main.bounds.height - 100)
+        item.texture = SKTexture(imageNamed: "item")
+        item.size = CGSize(width: 50, height: 50)
+        item.position = pos
+        item.zPosition = 0
         item.name = "item"
         
         item.physicsBody = SKPhysicsBody(rectangleOf: item.frame.size)
         item.physicsBody?.isDynamic = true
         item.physicsBody?.affectedByGravity = false
         item.physicsBody?.usesPreciseCollisionDetection = true
-        item.physicsBody?.categoryBitMask = PhysicsCategory.Alien
+        item.physicsBody?.allowsRotation = false
+        item.physicsBody?.categoryBitMask = PhysicsCategory.Item
         item.physicsBody?.contactTestBitMask = PhysicsCategory.Bullet
         
         self.addChild(item)
@@ -122,8 +151,9 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     
     func createAlien(pos: CGPoint, color: UIColor) {
         let alien = SKSpriteNode()
-        alien.size = CGSize(width: 25, height: 25)
-        alien.color = color
+        let alienTexture = ["alien1","alien2","alien3","alien4","alien5"]
+        alien.size = CGSize(width: 50, height: 50)
+        alien.texture = SKTexture(imageNamed: alienTexture.randomElement()!)
         alien.position = pos
         alien.name = "alien"
         
@@ -136,22 +166,33 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(alien)
         
-        let moveRight = SKAction.move(by: CGVector(dx: 125, dy: 0), duration: 0.3)
-        let moveLeft = SKAction.move(by: CGVector(dx: -125, dy: 0), duration: 0.3)
-        let moveDown = SKAction.move(by: CGVector(dx: 0, dy: -50), duration: 0.3)
-        let wait = SKAction.wait(forDuration: 0.1)
+        let moveRight = SKAction.move(by: CGVector(dx: Int.random(in: 30...Int(UIScreen.main.bounds.width / 2)), dy: 0), duration: 0.3)
+        let moveLeft = SKAction.move(by: CGVector(dx: -Int.random(in: 30...Int(UIScreen.main.bounds.width / 2)), dy: 0), duration: 0.3)
+        let moveDown = SKAction.move(by: CGVector(dx: 0, dy: -Int.random(in: 30...50)), duration: 0.1)
+        let wait = SKAction.wait(forDuration: 0.05)
+        let seq = [moveRight,moveLeft,moveDown,moveDown,wait]
+
+        //ランダムにシークエンスを作成
+
+        let sequence = SKAction.sequence(seq.shuffled())
+        let sequence2 = SKAction.sequence(seq.shuffled())
+        let sequence3 = SKAction.sequence(seq.shuffled())
+        let sequence4 = SKAction.sequence(seq.shuffled())
+        let sequence5 = SKAction.sequence(seq.shuffled())
         
-        let sequence = SKAction.sequence([moveRight, wait, moveDown, moveLeft, wait])
-        let repeatSequence = SKAction.repeatForever(sequence)
+        let randomSequence = [sequence,sequence2,sequence3,sequence4,sequence5]
+        
+        let repeatSequence = SKAction.repeatForever(randomSequence.randomElement()!)
         
         alien.run(repeatSequence)
     }
     
     func createShip() {
-        ship.size = CGSize(width: 50, height: 50)
-        ship.color = UIColor.blue
+        ship.texture = SKTexture(imageNamed: "player")
+        ship.size = CGSize(width: 75, height: 75)
         ship.position = CGPoint(x: UIScreen.main.bounds.width / 2, y: 100)
         ship.name = "ship"
+        ship.zPosition = 1
         
         ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
         ship.physicsBody?.isDynamic = true
@@ -165,13 +206,15 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     }
     
     func createBullet() {
-        let bullet = SKShapeNode(circleOfRadius: 5)
-        bullet.fillColor = .red
-        bullet.strokeColor = bullet.fillColor
-        bullet.name = "bullet"
-        bullet.position = CGPoint(x: ship.position.x, y: ship.position.y + 20)
+        let bullet = SKSpriteNode()
+        let bulletTexture = ["makaron1","makaron2"]
         
-        bullet.physicsBody = SKPhysicsBody(circleOfRadius: 5)
+        bullet.texture = SKTexture(imageNamed: bulletTexture.randomElement()!)
+        bullet.size = CGSize(width: 50, height: 50)
+        bullet.name = "bullet"
+        bullet.position = CGPoint(x: ship.position.x, y: ship.position.y + 65)
+        
+        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.frame.size)
         bullet.physicsBody?.isDynamic = true
         bullet.physicsBody?.affectedByGravity = false
         bullet.physicsBody?.usesPreciseCollisionDetection = true
@@ -180,7 +223,7 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         
         addChild(bullet)
         
-        let moveUp = SKAction.move(by: CGVector(dx: 0, dy: 800), duration: 1.0)
+        let moveUp = SKAction.move(by: CGVector(dx: 0, dy: 800), duration: 2.0)
         let delete = SKAction.removeFromParent()
         let sequenceActions = SKAction.sequence([moveUp, delete])
         
@@ -189,7 +232,14 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     
    //  タッチ処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        createBullet()
+        let currentTime = Date().timeIntervalSince1970
+        if currentTime - lastBulletFireTime >  0.2 {
+            lastBulletFireTime = currentTime
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.createBullet()
+            }
+        }
+        
         ship.position.y = 100
     }
     
@@ -199,9 +249,9 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         
         for touch in touches {
             let currentTime = Date().timeIntervalSince1970
-            if currentTime - lastBulletFireTime >  (ScoreManager.shared.stage >= 5 ? 0.15 : 0.2) {
+            if currentTime - lastBulletFireTime >  0.2 {
                 lastBulletFireTime = currentTime
-                DispatchQueue.main.asyncAfter(deadline: .now() + (ScoreManager.shared.stage >= 5 ? 0.15 : 0.2)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() +  0.2 ) {
                     self.createBullet()
                 }
             }
@@ -217,13 +267,31 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     
     func checkForGameOver() {
         enumerateChildNodes(withName: "alien") { node, _ in
-            if node.position.y <= 100 {
-                if ScoreManager.shared.score > ScoreManager.shared.hero {
-                    ScoreManager.shared.hero = ScoreManager.shared.score
-                    self.bestScoreLabel.text = "BestScore: \(ScoreManager.shared.hero)"
+            if node.position.y <= 110 {
+                if self.value.score > self.value.hero {
+                    self.value.hero = self.value.score
+                    self.bestScoreLabel.text = "BestScore: \(self.value.hero)"
                 }
                 self.GameOver()
             }
+            if node.position.x > UIScreen.main.bounds.maxX {
+                    node.position.x = UIScreen.main.bounds.minX + 25
+                }
+            if node.position.x < UIScreen.main.bounds.minX {
+                    node.position.x = UIScreen.main.bounds.maxX - 25
+            }
+        }
+    }
+    
+    func explosion(pos: CGPoint) {
+        let explosion = SKSpriteNode()
+        explosion.size = CGSize(width: 30, height: 30)
+        explosion.position = pos
+        explosion.texture = SKTexture(imageNamed: "explosion")
+        addChild(explosion)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            explosion.removeFromParent()
         }
     }
     
@@ -239,32 +307,46 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         let collisionObject = contact.bodyA.categoryBitMask == PhysicsCategory.Alien ? contact.bodyB : contact.bodyA
         
         if collisionObject.categoryBitMask == PhysicsCategory.Bullet {
+            explosion(pos: contact.contactPoint)
             contact.bodyA.node?.removeFromParent()
             contact.bodyB.node?.removeFromParent()
+            
+            Int.random(in: 0...10) == 0 ? createItem(pos: contact.contactPoint) : nil
 
-            ScoreManager.shared.score += 10
-            scoreLabel.text = "Score: \(ScoreManager.shared.score)"
+           value.score += 10
+            scoreLabel.text = "Score: \(value.score)"
         }
         
         if collisionObject.categoryBitMask == PhysicsCategory.Ship {
-            if ScoreManager.shared.score > ScoreManager.shared.hero {
-                ScoreManager.shared.hero = ScoreManager.shared.score
-                bestScoreLabel.text = "BestScore: \(ScoreManager.shared.hero)"
+            if self.value.score > self.value.hero {
+                self.value.hero = self.value.score
+                self.bestScoreLabel.text = "BestScore: \(self.value.hero)"
             }
             GameOver()
         }
+        if collisionObject.categoryBitMask == PhysicsCategory.Item {
+            contact.bodyA.node?.removeFromParent()
+            value.score += 50
+            scoreLabel.text = "Score: \(value.score)"
+        }
         
         if countSpriteNodes() == 0 {
-            ScoreManager.shared.reverse.toggle()
-            ScoreManager.shared.stage += 1
-            let scene = ScoreManager.shared.reverse ? GameScene2() : GameScene()
+            if value.stage % 10 == 0{
+                value.boss.toggle()
+            }
+            let scene = value.boss ? BossScene() : GameScene()
             scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
             scene.scaleMode = .fill
-            scene.backgroundColor = ScoreManager.shared.reverse ? .black : .white
-            view?.presentScene(scene, transition: .flipVertical(withDuration: 1.0))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
+                self.nextLabel()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0){
+                    self.view?.presentScene(scene)
+
+                }
+            }
         }
     }
-}
 
 extension SKNode {
     func countSpriteNodes() -> Int {
