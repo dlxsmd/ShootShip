@@ -55,7 +55,7 @@ class BossScene: GameBase{
         let bullet = SKSpriteNode()
         bullet.texture = SKTexture(imageNamed: "makaron1")
         bullet.size = CGSize(width: 30, height: 30)
-        bullet.position = boss.position
+        bullet.position = CGPoint(x: boss.position.x, y: boss.position.y - 200)
         bullet.name = "boss_bullet"
         
         bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.frame.size)
