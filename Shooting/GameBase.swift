@@ -17,18 +17,23 @@ class ValueManager {
     
     var hero = 0 //ベストスコア
     
-    var stage = 9 //ステージ数(初期値は０に)
+    var stage = 0 //ステージ数(defaultは0)
     
     var bossstage = 0 //ボスステージ
     
-    var debug = true //モード
+    var isDebug = true //モード
     
-    var boss = false //ボスステージ
+    var isBoss = true //ボスステージ(defaultはfalse)
+    
+    var isDouble = false //二重弾
+    
+    var isBest = false //ベストスコア
     
 }
 
 class GameBase: SKScene, SKPhysicsContactDelegate {
-     
+    
+    
     let value = ValueManager.shared
     
     
@@ -41,9 +46,9 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     }
     
     let background = SKSpriteNode(imageNamed: "background")
-    let scoreLabel = SKLabelNode(fontNamed: "Helvetica")
-    let bestScoreLabel = SKLabelNode(fontNamed: "Helvetica")
-    let stageLabel = SKLabelNode(fontNamed: "Helvetica")
+    let scoreLabel = SKLabelNode()
+    let bestScoreLabel = SKLabelNode()
+    let stageLabel = SKLabelNode()
     let ship = SKSpriteNode()
     
     override func didMove(to view: SKView) {
@@ -53,24 +58,30 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         
         value.stage += 1
         makeBackground()
+        waveLabel()
         makescoreLabel(pos: CGPoint(x: UIScreen.main.bounds.maxX - 100, y: UIScreen.main.bounds.maxY - 100))
         makebestscoreLabel(pos: CGPoint(x: UIScreen.main.bounds.minX + 100, y: UIScreen.main.bounds.maxY - 100))
         makeStageLabel(pos: CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 70))
         createShip()
-        makeDeadline()
+        //    makeDeadline()
         
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
-                self.generateAliens()
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0){
+            
+            self.generateAliens()
+        }
     }
     
-    func nextLabel(){
-        let nextLabel = SKLabelNode(fontNamed: "Helvetica")
-        nextLabel.text = "Next Stage"
-        nextLabel.fontSize = 50
-        nextLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
-        nextLabel.fontColor = .white
-        addChild(nextLabel)
+    func waveLabel(){
+        let waveLabel = SKLabelNode(fontNamed: "Helvetica")
+        waveLabel.text = "Wave \(value.stage)"
+        waveLabel.fontSize = 50
+        waveLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+        waveLabel.fontColor = .white
+        addChild(waveLabel)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            waveLabel.removeFromParent()
+        }
     }
     
     func makeBackground(){
@@ -80,9 +91,10 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     }
     
     func makeStageLabel(pos: CGPoint){
-        stageLabel.text = "Stage: \(value.stage)"
+        stageLabel.text = "Wave : \(value.stage)"
         stageLabel.fontSize = 25
         stageLabel.position = pos
+        stageLabel.fontName = "JF-Dot-ShinonomeMaru-12-Regular"
         stageLabel.fontColor = .white
         addChild(stageLabel)
     }
@@ -91,7 +103,9 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         bestScoreLabel.text = "BestScore: \(value.hero)"
         bestScoreLabel.fontSize = 25
         bestScoreLabel.position = pos
+        bestScoreLabel.fontName = "JF-Dot-ShinonomeMaru-12-Regular"
         bestScoreLabel.fontColor = .white
+        bestScoreLabel.alpha = 0.7
         addChild(bestScoreLabel)
     }
     
@@ -99,10 +113,12 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         scoreLabel.text = "Score: \(value.score)"
         scoreLabel.fontSize = 25
         scoreLabel.position = pos
+        scoreLabel.fontName = "JF-Dot-ShinonomeMaru-12-Regular"
         scoreLabel.fontColor = .white
+        scoreLabel.alpha = 0.7
         addChild(scoreLabel)
     }
-    
+        
     func makeDeadline() {
         var points = [CGPoint(x: 0, y: 0), CGPoint(x: frame.width, y: 0)]
         
@@ -113,17 +129,17 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         deadline.strokeColor = UIColor.red
         addChild(deadline)
     }
-
+    
     func generateAliens() {
         let startY = Int(UIScreen.main.bounds.maxY - 100)
         
         for row in 0..<value.stage {
             
-                    for _ in 0..<2{
-                        createAlien(pos: CGPoint(x: Int.random(in: Int(UIScreen.main.bounds.midX / 2)..<Int(UIScreen.main.bounds.midX * (3/2))), y: startY + row * 25), color: .green)
-                    }
+            for _ in 0..<2{
+                createAlien(pos: CGPoint(x: Int.random(in: Int(UIScreen.main.bounds.midX / 2)..<Int(UIScreen.main.bounds.midX * (3/2))), y: startY + row * 25), color: .green)
             }
         }
+    }
     
     func createItem(pos: CGPoint) {
         let item = SKSpriteNode()
@@ -166,14 +182,14 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(alien)
         
-        let moveRight = SKAction.move(by: CGVector(dx: Int.random(in: 30...Int(UIScreen.main.bounds.width / 2)), dy: 0), duration: 0.3)
-        let moveLeft = SKAction.move(by: CGVector(dx: -Int.random(in: 30...Int(UIScreen.main.bounds.width / 2)), dy: 0), duration: 0.3)
+        let moveRight = SKAction.move(by: CGVector(dx: Int.random(in: 30...Int(UIScreen.main.bounds.width / 4)), dy: 0), duration: 0.2)
+        let moveLeft = SKAction.move(by: CGVector(dx: -Int.random(in: 30...Int(UIScreen.main.bounds.width / 4)), dy: 0), duration: 0.2)
         let moveDown = SKAction.move(by: CGVector(dx: 0, dy: -Int.random(in: 30...50)), duration: 0.1)
         let wait = SKAction.wait(forDuration: 0.05)
         let seq = [moveRight,moveLeft,moveDown,moveDown,wait]
-
+        
         //ランダムにシークエンスを作成
-
+        
         let sequence = SKAction.sequence(seq.shuffled())
         let sequence2 = SKAction.sequence(seq.shuffled())
         let sequence3 = SKAction.sequence(seq.shuffled())
@@ -228,9 +244,33 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
         let sequenceActions = SKAction.sequence([moveUp, delete])
         
         bullet.run(sequenceActions)
+        
+        if value.isDouble {
+            let bullet2 = SKSpriteNode()
+            bullet2.texture = SKTexture(imageNamed: bulletTexture.randomElement()!)
+            bullet2.size = CGSize(width: 50, height: 50)
+            bullet2.name = "bullet"
+            bullet.position = CGPoint(x: ship.position.x + 25, y: ship.position.y + 65)
+            bullet2.position = CGPoint(x: ship.position.x - 25, y: ship.position.y + 65)
+            
+            bullet2.physicsBody = SKPhysicsBody(rectangleOf: bullet2.frame.size)
+            bullet2.physicsBody?.isDynamic = true
+            bullet2.physicsBody?.affectedByGravity = false
+            bullet2.physicsBody?.usesPreciseCollisionDetection = true
+            bullet2.physicsBody?.categoryBitMask = PhysicsCategory.Bullet
+            bullet2.physicsBody?.contactTestBitMask = PhysicsCategory.Alien
+            
+            addChild(bullet2)
+            
+            let moveUp2 = SKAction.move(by: CGVector(dx: -25, dy: 800), duration: 2.0)
+            let delete2 = SKAction.removeFromParent()
+            let sequenceActions2 = SKAction.sequence([moveUp2, delete2])
+            
+            bullet2.run(sequenceActions2)
+        }
     }
     
-   //  タッチ処理
+    //  タッチ処理
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let currentTime = Date().timeIntervalSince1970
         if currentTime - lastBulletFireTime >  0.2 {
@@ -267,91 +307,105 @@ class GameBase: SKScene, SKPhysicsContactDelegate {
     
     func checkForGameOver() {
         enumerateChildNodes(withName: "alien") { node, _ in
-            if node.position.y <= 110 {
+            
+            if node.position.x > UIScreen.main.bounds.maxX {
+                node.position.x = UIScreen.main.bounds.minX + 25
+            }
+            if node.position.x < UIScreen.main.bounds.minX {
+                node.position.x = UIScreen.main.bounds.maxX - 25
+            }
+            if node.position.y < 0 {
+                self.explosion(pos: node.position)
+                node.removeFromParent()
+            }
+            if self.countSpriteNodes(name: "alien") == 0 {
+                if self.value.stage % 10 == 0{
+                    self.value.isBoss = true
+                }
+                let scene = self.value.isBoss ? BossScene() : GameScene()
+                scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                scene.scaleMode = .fill
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
+                    self.view?.presentScene(scene)
+                    
+                }
+            }
+        }
+    }
+        
+        func explosion(pos: CGPoint) {
+            let explosion = SKSpriteNode()
+            explosion.size = CGSize(width: 30, height: 30)
+            explosion.position = pos
+            explosion.texture = SKTexture(imageNamed: "explosion")
+            addChild(explosion)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                explosion.removeFromParent()
+            }
+        }
+        
+        func GameOver() {
+            let scene = GameOverScene()
+            scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            scene.backgroundColor = .black
+            scene.scaleMode = .fill
+            view?.presentScene(scene, transition: .flipVertical(withDuration: 1.0))
+        }
+        
+        func didBegin(_ contact: SKPhysicsContact) {
+            let collisionObject = contact.bodyA.categoryBitMask == PhysicsCategory.Alien ? contact.bodyB : contact.bodyA
+            
+            if collisionObject.categoryBitMask == PhysicsCategory.Bullet {
+                explosion(pos: contact.contactPoint)
+                contact.bodyA.node?.removeFromParent()
+                contact.bodyB.node?.removeFromParent()
+                
+                Int.random(in: 0...30) == 0 ? createItem(pos: contact.contactPoint) : nil
+                
+                value.score += 10
+                scoreLabel.text = "Score: \(value.score)"
+            }
+            
+            if collisionObject.categoryBitMask == PhysicsCategory.Ship {
                 if self.value.score > self.value.hero {
                     self.value.hero = self.value.score
                     self.bestScoreLabel.text = "BestScore: \(self.value.hero)"
+                    self.value.isBest = true
                 }
-                self.GameOver()
+                GameOver()
             }
-            if node.position.x > UIScreen.main.bounds.maxX {
-                    node.position.x = UIScreen.main.bounds.minX + 25
+            if collisionObject.categoryBitMask == PhysicsCategory.Item {
+                contact.bodyA.node?.removeFromParent()
+                value.isDouble = true
+                print(value.isDouble)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15.0){
+                    self.value.isDouble = false
+                    print(self.value.isDouble)
                 }
-            if node.position.x < UIScreen.main.bounds.minX {
-                    node.position.x = UIScreen.main.bounds.maxX - 25
             }
-        }
-    }
-    
-    func explosion(pos: CGPoint) {
-        let explosion = SKSpriteNode()
-        explosion.size = CGSize(width: 30, height: 30)
-        explosion.position = pos
-        explosion.texture = SKTexture(imageNamed: "explosion")
-        addChild(explosion)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            explosion.removeFromParent()
-        }
-    }
-    
-    func GameOver() {
-        let scene = GameOverScene()
-        scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        scene.backgroundColor = .black
-        scene.scaleMode = .fill
-        view?.presentScene(scene, transition: .flipVertical(withDuration: 1.0))
-    }
-    
-    func didBegin(_ contact: SKPhysicsContact) {
-        let collisionObject = contact.bodyA.categoryBitMask == PhysicsCategory.Alien ? contact.bodyB : contact.bodyA
-        
-        if collisionObject.categoryBitMask == PhysicsCategory.Bullet {
-            explosion(pos: contact.contactPoint)
-            contact.bodyA.node?.removeFromParent()
-            contact.bodyB.node?.removeFromParent()
             
-            Int.random(in: 0...10) == 0 ? createItem(pos: contact.contactPoint) : nil
-
-           value.score += 10
-            scoreLabel.text = "Score: \(value.score)"
-        }
-        
-        if collisionObject.categoryBitMask == PhysicsCategory.Ship {
-            if self.value.score > self.value.hero {
-                self.value.hero = self.value.score
-                self.bestScoreLabel.text = "BestScore: \(self.value.hero)"
-            }
-            GameOver()
-        }
-        if collisionObject.categoryBitMask == PhysicsCategory.Item {
-            contact.bodyA.node?.removeFromParent()
-            value.score += 50
-            scoreLabel.text = "Score: \(value.score)"
-        }
-        
-        if countSpriteNodes() == 0 {
-            if value.stage % 10 == 0{
-                value.boss.toggle()
-            }
-            let scene = value.boss ? BossScene() : GameScene()
-            scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-            scene.scaleMode = .fill
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
-                self.nextLabel()
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0){
+            if countSpriteNodes(name: "alien") == 0 {
+                if value.stage % 10 == 0{
+                    value.isBoss.toggle()
+                }
+                let scene = value.isBoss ? BossScene() : GameScene()
+                scene.size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                scene.scaleMode = .fill
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0){
                     self.view?.presentScene(scene)
-
+                    
                 }
             }
         }
     }
 
 extension SKNode {
-    func countSpriteNodes() -> Int {
+    func countSpriteNodes(name: String) -> Int {
         var count = 0
-        enumerateChildNodes(withName: "alien") { node, _ in
+        enumerateChildNodes(withName: name) { node, _ in
             if node is SKSpriteNode {
                 count += 1
             }

@@ -31,6 +31,16 @@ class GameOverScene:SKScene{
         scoreLabel.fontColor = .white
         addChild(scoreLabel)
         
+        if value.isBest{
+            let bestLabel = SKLabelNode(fontNamed: "Helvetica")
+            bestLabel.text = "BestScore!!"
+            bestLabel.fontSize = 50
+            bestLabel.position = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 200)
+            bestLabel.fontColor = .yellow
+            bestLabel.zPosition = 1
+            addChild(bestLabel)
+        }
+        
         restartLabel.text = "Restart"
         restartLabel.fontSize = 30
         restartLabel.position = CGPoint(x: UIScreen.main.bounds.maxX / 4, y: UIScreen.main.bounds.minY + 100 )
@@ -43,6 +53,8 @@ class GameOverScene:SKScene{
         titleLabel.fontColor = .blue
         addChild(titleLabel)
         
+        
+        
         print("gameover loading")
     }
     
@@ -52,21 +64,26 @@ class GameOverScene:SKScene{
         let location = touch!.location(in: self)
         
         if restartLabel.contains(location){
-            value.score = 0
-            value.stage = 0
+            valueReset()
             let scene = Shooting.GameScene(size: self.size)
             scene.scaleMode = .fill
             scene.backgroundColor = .white
             self.view?.presentScene(scene)
         }
         if titleLabel.contains(location){
-            value.score = 0
-            value.stage = 0
+            valueReset()
             let scene = Shooting.TitleScene(size: self.size)
             scene.scaleMode = .fill
             scene.backgroundColor = .white
             self.view?.presentScene(scene)
         }
+    }
+    
+    func valueReset(){
+        value.score = 0
+        value.stage = 0
+        value.bossstage = 0
+        value.isBest = false
     }
     
 }

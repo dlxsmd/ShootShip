@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7FB2EFB62C14A74900CA7728 /* JF-Dot-ShinonomeMaru12.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FB2EFB52C14A74900CA7728 /* JF-Dot-ShinonomeMaru12.ttf */; };
 		7FB4428E2C0F008400D5C000 /* ShootingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB4428D2C0F008400D5C000 /* ShootingApp.swift */; };
 		7FB442902C0F008400D5C000 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB4428F2C0F008400D5C000 /* ContentView.swift */; };
 		7FB442922C0F008D00D5C000 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7FB442912C0F008D00D5C000 /* Assets.xcassets */; };
@@ -19,6 +20,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7FB2EFB52C14A74900CA7728 /* JF-Dot-ShinonomeMaru12.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JF-Dot-ShinonomeMaru12.ttf"; sourceTree = "<group>"; };
+		7FB2EFB72C14A76800CA7728 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FB4428A2C0F008400D5C000 /* Shooting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shooting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FB4428D2C0F008400D5C000 /* ShootingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingApp.swift; sourceTree = "<group>"; };
 		7FB4428F2C0F008400D5C000 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -29,6 +32,7 @@
 		7FD2A8C72C10382000D0A320 /* GameOverScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
 		7FD2A8C92C11409400D0A320 /* GameBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBase.swift; sourceTree = "<group>"; };
 		7FD2A9192C12D20600D0A320 /* BossScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BossScene.swift; sourceTree = "<group>"; };
+		7FD2A91B2C13129D00D0A320 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +49,7 @@
 		7FB442812C0F008300D5C000 = {
 			isa = PBXGroup;
 			children = (
+				7FD2A91B2C13129D00D0A320 /* README.md */,
 				7FB4428C2C0F008400D5C000 /* Shooting */,
 				7FB4428B2C0F008400D5C000 /* Products */,
 			);
@@ -61,6 +66,8 @@
 		7FB4428C2C0F008400D5C000 /* Shooting */ = {
 			isa = PBXGroup;
 			children = (
+				7FB2EFB72C14A76800CA7728 /* Info.plist */,
+				7FB2EFB52C14A74900CA7728 /* JF-Dot-ShinonomeMaru12.ttf */,
 				7FB4428D2C0F008400D5C000 /* ShootingApp.swift */,
 				7FB4428F2C0F008400D5C000 /* ContentView.swift */,
 				7FD2A8C52C10118200D0A320 /* TitleScene.swift */,
@@ -142,6 +149,7 @@
 			files = (
 				7FB442952C0F008D00D5C000 /* Preview Assets.xcassets in Resources */,
 				7FB442922C0F008D00D5C000 /* Assets.xcassets in Resources */,
+				7FB2EFB62C14A74900CA7728 /* JF-Dot-ShinonomeMaru12.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +303,7 @@
 				DEVELOPMENT_TEAM = GMQ738Q64K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shooting/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -325,6 +334,7 @@
 				DEVELOPMENT_TEAM = GMQ738Q64K;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shooting/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
